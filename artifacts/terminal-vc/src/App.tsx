@@ -54,6 +54,8 @@ export default function App() {
       const timer = setTimeout(() => setToast(null), 3500);
       return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, [toast]);
 
   useEffect(() => {

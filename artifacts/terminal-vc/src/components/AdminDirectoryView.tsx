@@ -209,7 +209,9 @@ export default function AdminDirectoryView({
                         <div className="font-sans font-bold text-on-surface flex items-center gap-1">
                           <span>{startup.name}</span>
                           {startup.score >= 90 && (
-                            <BadgeCheck className="w-3.5 h-3.5 text-primary" title="Top Tier Sovereign Project" />
+                            <BadgeCheck className="w-3.5 h-3.5 text-primary">
+                              <title>Top Tier Sovereign Project</title>
+                            </BadgeCheck>
                           )}
                         </div>
                         <div className="text-[9px] text-on-surface-variant font-mono uppercase tracking-wider">
