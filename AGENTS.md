@@ -22,10 +22,11 @@ Run from the workspace root:
 ```sh
 pnpm install --frozen-lockfile
 pnpm run typecheck
+pnpm run lint
 pnpm run build
 ```
 
-There is currently no lint command and no test command. Do not claim those checks ran. Vite uses its default port and `/` base path when `PORT` and `BASE_PATH` are unset; supplied values still configure dev/preview and deployment builds. `DATABASE_URL` is required only when the database entry point or Drizzle command is executed. See `docs/CURRENT_STATE_AUDIT.md` for the verified validation baseline.
+`pnpm run lint` checks maintained first-party JavaScript, TypeScript, and React code; generated and external outputs are excluded in `eslint.config.mjs`. There is currently no test command. Do not claim tests ran. Vite uses its default port and `/` base path when `PORT` and `BASE_PATH` are unset; supplied values still configure dev/preview and deployment builds. `DATABASE_URL` is required only when the database entry point or Drizzle command is executed. See `docs/CURRENT_STATE_AUDIT.md` for the verified validation baseline.
 
 ## Conventions and guardrails
 
@@ -46,4 +47,4 @@ There is currently no lint command and no test command. Do not claim those check
 
 ## Definition of Done
 
-A change is complete only when its scope and behavior-preservation constraints are documented, relevant typecheck/build/tests/lint (when available) have been run, generated sources are in sync when contracts changed, accessibility and empty/error states affected by the change were checked, unrelated files remain untouched, and all failures or unvalidated environment-dependent behavior are reported.
+A change is complete only when its scope and behavior-preservation constraints are documented, `pnpm run lint` plus relevant typecheck/build/tests (when available) have been run, generated sources are in sync when contracts changed, accessibility and empty/error states affected by the change were checked, unrelated files remain untouched, and all failures or unvalidated environment-dependent behavior are reported.

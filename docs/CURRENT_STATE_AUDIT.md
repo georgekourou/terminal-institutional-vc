@@ -4,11 +4,11 @@ Audit date: 2026-07-20. Baseline: clean `main` tracking `origin/main` before doc
 
 ## Executive assessment
 
-The repository has a coherent visual prototype, a lockfile-enforced workspace, generated API boundaries, and a notably defensive custom fetcher. Installation, typechecking, and the root production build are green on Windows after the first stabilization tasks. The baseline still lacks lint and test workflows, and the dashboard mixes fixtures, persistence, navigation, transformation, and UI concerns. Several controls are simulated or incomplete, including global search and pagination.
+The repository has a coherent visual prototype, a lockfile-enforced workspace, generated API boundaries, and a notably defensive custom fetcher. Installation, typechecking, and the root production build are green on Windows after the first stabilization tasks. The baseline now includes lint but still lacks a test workflow, and the dashboard mixes fixtures, persistence, navigation, transformation, and UI concerns. Several controls are simulated or incomplete, including global search and pagination.
 
 ## Current stack
 
-- Workspace/runtime: pnpm 10.32.1, Node 24.13.0, TypeScript 5.9.3.
+- Workspace/runtime: pnpm 10.32.1, Node 24.13.0, TypeScript 5.9.3, ESLint 9.39.5 (flat config).
 - Product UI: React/React DOM 19.1.0, Vite 7.3.5, Tailwind CSS 4.3.1, Lucide, Radix UI primitives, Recharts, Wouter and TanStack Query dependencies.
 - API: Express 5.2.1, Pino, CORS, esbuild.
 - Contracts: OpenAPI 3.1, Orval 8.18.0, Zod 3.25.76.
@@ -40,9 +40,13 @@ The product has no URL router despite declaring Wouter. `currentView` strings se
 | `pnpm run build` | Passed on Windows without `PORT` or `BASE_PATH`; both Vite applications and the API server bundled successfully. |
 | Clean temporary copy: frozen install and root build | Passed without copied `node_modules` or a local pnpm store. |
 | `pnpm --filter @workspace/api-server run build` | Passed outside the sandbox after sandboxed esbuild spawning returned EPERM. |
-| Lint | No lint dependency/config/script found. |
+| `pnpm run lint` | Passed across maintained `.js`, `.mjs`, `.cjs`, `.ts`, and `.tsx` files. |
 | Tests | No test runner, test script, or test files found. |
 | Deployed reference | Loaded dashboard/sidebar content; title was `TERMINAL - Solana Institutional VC`; no warning/error console entries were captured during the read-only check. |
+
+The lint baseline uses root flat configuration with ESLint's recommended JavaScript rules, non-type-aware `typescript-eslint` rules, React/JSX and Hooks correctness rules, and dedicated unused-import detection. Type-aware linting is deferred because the existing TypeScript build already provides project-wide semantic checks and parser services would add configuration and runtime cost. `@eslint/js` supplies core rules; `typescript-eslint` parses and checks TypeScript; `eslint-plugin-react` and `eslint-plugin-react-hooks` cover React correctness; `eslint-plugin-unused-imports` reliably reports unused imports/variables; and `globals` defines browser and Node runtime names.
+
+Initial linting reported 14 errors: two unnecessary runtime toast action maps were replaced by type-only declarations; six ternary handler expressions, two `cmdk-input-wrapper` attributes, and one literal quotation pair were retained through narrowly fitted rule options; and two explicit `any` sorter values remain deferred to task 2.3. Generated API/Zod output and the mockup preview's generated discovery module are excluded rather than edited.
 
 ## Strengths
 
@@ -75,7 +79,7 @@ The product has no URL router despite declaring Wouter. `currentView` strings se
 
 | Severity / status | Evidence | Impact | Recommended action | Timing |
 | --- | --- | --- | --- | --- |
-| **High — Verified** | No lint config/script, no test script/runner/files; product behavior includes persistence, admin mutations, sorting, and investment simulation. | Regressions and unsafe patterns are not automatically protected; “green” cannot include lint/tests. | Add minimal lint and test baselines with documented dependency justification, then cover existing behavior before decomposition. | Address now in stabilization. |
+| **High — Partially resolved 2026-07-21** | Root ESLint 9 flat config and `pnpm run lint` now cover maintained workspace code; no test script/runner/files exist. | Static correctness and maintainability checks now protect the baseline, but behavioral regressions remain untested. | Preserve the lint command and add the separately planned test baseline before decomposition. | Lint resolved; tests remain task 1.5. |
 | **Medium — Verified** | `AdminDirectoryView.tsx` 522 lines, `ProfileView.tsx` 513, `DashboardView.tsx` 441, `ActiveRaisesView.tsx` 365, `App.tsx` 245. | Presentation, transformations, validation, and control state are difficult to test/review independently. | Extract pure domain/storage helpers first, then small visual sections with characterization tests. | Deferred to phases 3–4; no big-bang rewrite. |
 | **Medium — Verified** | Money/category/status formatting and filtering are repeated across the four view components. | Rules can drift (for example money precision and category matching already differ). | Inventory current outputs, add pure helpers with explicit variants, migrate one call site per change. | Deferred until tests exist. |
 | **Medium — Verified** | `artifacts/terminal-vc/src/types.ts` combines interfaces and roughly 350 lines of fixtures; `App.tsx` directly reads/writes storage and owns domain mutations. | Domain contracts, sample content, persistence, and orchestration are coupled. | Split types, fixtures, validated storage adapter, and pure mutation functions without changing data. | Address incrementally in phases 2–3. |
